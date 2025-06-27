@@ -20,44 +20,44 @@ app.get("/api/hello", function (req, res) {
   res.json({ greeting: "hello API" });
 });
 
-app.post("/api/shorturl", (req, res) => {
+app.post('/api/shorturl', (req, res) => {
   const originalUrl = req.body.url;
 
-  // Extract hostname only (strip protocol etc.)
   let hostname;
   try {
     const parsedUrl = new URL(originalUrl);
-    hostname = parsedUrl.hostname; // e.g., "google.com"
-  } catch (err) {
-    return res.json({ error: "invalid url" });
+    hostname = parsedUrl.hostname;
+  } catch {
+    return res.json({ error: 'invalid url' });
   }
 
-  dns.lookup(hostname, (err, address) => {
+  dns.lookup(hostname, (err) => {
     if (err) {
-      return res.json({ error: "invalid url" });
+      return res.json({ error: 'invalid url' });
     }
 
-    // URL is valid and domain exists then move on
     const shortUrlId = urlDatabase.length + 1;
     urlDatabase.push({ id: shortUrlId, url: originalUrl });
 
     res.json({
       original_url: originalUrl,
-      short_url: shortUrlId,
+      short_url: shortUrlId
     });
   });
 });
 
-app.get('/api/shorturl/:id',(req,res)=>{
-  const shortUrlId=parseInt(req.params.id);
-  const entry =urlDatabase.find(e=>e.id===shortUrlId)
-  if(!entry){
-    return res.status(404).json({error:'Short URL not found'});
-  }
-  res.redirect(entry.url);
-})
 
-app.get("api/shorturl");
+app.get('/api/shorturl/:id', (req, res) => {
+  const shortUrlId = parseInt(req.params.id);
+  const entry = urlDatabase.find(e => e.id === shortUrlId);
+
+  if (!entry) {
+    return res.json({ error: 'Short URL not found' });
+  }
+
+  res.redirect(entry.url);
+});
+
 app.listen(port, function () {
   console.log(`Listening on port ${port}`);
 });
